@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"io/fs"
 	"net/http"
+	"strings"
 	"time"
 
+	"github.com/shelterkin/shelterkin/internal/auth"
 	"github.com/shelterkin/shelterkin/internal/config"
 	"github.com/shelterkin/shelterkin/internal/crypto"
 	"github.com/shelterkin/shelterkin/internal/middleware"
@@ -23,16 +25,19 @@ type Server struct {
 }
 
 func New(cfg *config.Config, db *sql.DB, enc *crypto.Encryptor, hmac *crypto.HMACHasher, staticFS fs.FS) *Server {
-	mux := http.NewServeMux()
+	secure := strings.HasPrefix(cfg.BaseURL, "https")
 
-	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServerFS(staticFS)))
+	authService := auth.NewService(db, enc, hmac)
+	authHandler := auth.NewHandler(authService, cfg.SessionSecret, secure, middleware.GetCSRFToken)
 
-	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
-	})
-
-	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
+	// app routes go through LoadSession + CSRF
+	appMux := http.NewServeMux()
+	appMux.HandleFunc("GET /login", authHandler.HandleLoginPage)
+	appMux.HandleFunc("POST /login", authHandler.HandleLogin)
+	appMux.HandleFunc("GET /register", authHandler.HandleRegisterPage)
+	appMux.HandleFunc("POST /register", authHandler.HandleRegister)
+	appMux.HandleFunc("POST /logout", authHandler.HandleLogout)
+	appMux.Handle("GET /{$}", middleware.RequireAuth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.Write([]byte(`<!DOCTYPE html>
 <html lang="en" data-theme="light">
@@ -41,9 +46,22 @@ func New(cfg *config.Config, db *sql.DB, enc *crypto.Encryptor, hmac *crypto.HMA
 <div style="text-align: center;"><h1>Shelterkin</h1><p>Server is running.</p></div>
 </body>
 </html>`))
-	})
+	})))
 
-	// middleware chain: outermost wraps first
+	var appHandler http.Handler = appMux
+	appHandler = middleware.CSRF(cfg.CSRFKey, secure)(appHandler)
+	appHandler = middleware.LoadSession(authService, cfg.SessionSecret, secure)(appHandler)
+
+	// top-level mux: /health and /static bypass LoadSession + CSRF
+	mux := http.NewServeMux()
+	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServerFS(staticFS)))
+	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("ok"))
+	})
+	mux.Handle("/", appHandler)
+
+	// shared middleware: Recover → RequestID → SecurityHeaders → Logging → mux
 	var handler http.Handler = mux
 	handler = middleware.Logging(handler)
 	handler = middleware.SecurityHeaders(handler)

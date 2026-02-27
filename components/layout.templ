@@ -1,11 +1,12 @@
 package components
 
-templ Layout(title string) {
+templ Layout(title string, csrfToken string) {
 	<!DOCTYPE html>
 	<html lang="en" data-theme="light">
 	<head>
 		<meta charset="UTF-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<meta name="csrf-token" content={ csrfToken }/>
 		<title>{ title } - Shelterkin</title>
 		<link rel="stylesheet" href="/static/css/styles.css"/>
 		<script src="/static/js/htmx.min.js"></script>
@@ -17,6 +18,12 @@ templ Layout(title string) {
 			{ children... }
 		</main>
 		<script>
+			document.body.addEventListener("htmx:configRequest", function(event) {
+				var meta = document.querySelector('meta[name="csrf-token"]');
+				if (meta && meta.content) {
+					event.detail.headers["X-CSRF-Token"] = meta.content;
+				}
+			});
 			htmx.config.responseHandling = [
 				{ code: "204", swap: false },
 				{ code: "[23]..", swap: true },

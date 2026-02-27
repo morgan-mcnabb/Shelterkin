@@ -20,11 +20,12 @@ const (
 )
 
 type Error struct {
-	Type       Type
-	Message    string
-	Field      string
-	RetryAfter time.Duration
-	Err        error
+	Type        Type
+	Message     string
+	Field       string
+	FieldErrors []*Error
+	RetryAfter  time.Duration
+	Err         error
 }
 
 func (e *Error) Error() string {

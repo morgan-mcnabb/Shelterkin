@@ -21,3 +21,11 @@ func (ve *ValidationErrors) Error() string {
 	}
 	return strings.Join(messages, "; ")
 }
+
+func (ve *ValidationErrors) ToError() *Error {
+	return &Error{
+		Type:        TypeValidation,
+		Message:     ve.Error(),
+		FieldErrors: ve.Errors,
+	}
+}
