@@ -1,0 +1,67 @@
+version: 2
+
+before:
+  hooks:
+    - go install github.com/a-h/templ/cmd/templ@latest
+    - go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+    - templ generate
+    - sqlc generate
+    - npx tailwindcss -i input.css -o static/css/styles.css --minify
+
+builds:
+  - main: ./cmd/shelterkin
+    binary: shelterkin
+    ldflags:
+      - -s -w
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+
+dockers:
+  - image_templates:
+      - "ghcr.io/shelterkin/shelterkin:{{ .Version }}-amd64"
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/amd64"
+    goarch: amd64
+    dockerfile: Dockerfile.goreleaser
+
+  - image_templates:
+      - "ghcr.io/shelterkin/shelterkin:{{ .Version }}-arm64"
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/arm64"
+    goarch: arm64
+    dockerfile: Dockerfile.goreleaser
+
+docker_manifests:
+  - name_template: "ghcr.io/shelterkin/shelterkin:{{ .Version }}"
+    image_templates:
+      - "ghcr.io/shelterkin/shelterkin:{{ .Version }}-amd64"
+      - "ghcr.io/shelterkin/shelterkin:{{ .Version }}-arm64"
+
+  - name_template: "ghcr.io/shelterkin/shelterkin:latest"
+    image_templates:
+      - "ghcr.io/shelterkin/shelterkin:{{ .Version }}-amd64"
+      - "ghcr.io/shelterkin/shelterkin:{{ .Version }}-arm64"
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"

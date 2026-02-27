@@ -1,0 +1,33 @@
+package components
+
+templ Layout(title string) {
+	<!DOCTYPE html>
+	<html lang="en" data-theme="light">
+	<head>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<title>{ title } - Shelterkin</title>
+		<link rel="stylesheet" href="/static/css/styles.css"/>
+		<script src="/static/js/htmx.min.js"></script>
+		<script src="/static/js/htmx-sse.js"></script>
+	</head>
+	<body class="min-h-screen bg-base-200">
+		<div id="alerts" class="fixed top-4 right-4 z-50 w-96 space-y-2"></div>
+		<main class="container mx-auto p-4">
+			{ children... }
+		</main>
+		<script>
+			htmx.config.responseHandling = [
+				{ code: "204", swap: false },
+				{ code: "[23]..", swap: true },
+				{ code: "401", swap: false },
+				{ code: "404", swap: true, target: "#alerts" },
+				{ code: "422", swap: true },
+				{ code: "429", swap: true, target: "#alerts" },
+				{ code: "[45]..", swap: true, target: "#alerts" }
+			];
+			htmx.config.timeout = 10000;
+		</script>
+	</body>
+	</html>
+}

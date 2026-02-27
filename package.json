@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "devDependencies": {
+    "tailwindcss": "^3",
+    "daisyui": "^4"
+  }
+}

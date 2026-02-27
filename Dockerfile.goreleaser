@@ -1,0 +1,19 @@
+FROM alpine:3.21
+
+RUN apk add --no-cache ca-certificates tzdata \
+    && addgroup -S shelterkin \
+    && adduser -S shelterkin -G shelterkin
+
+WORKDIR /app
+
+COPY shelterkin /app/shelterkin
+
+RUN mkdir -p /app/data && chown -R shelterkin:shelterkin /app
+
+USER shelterkin
+
+VOLUME ["/app/data"]
+
+EXPOSE 8080
+
+ENTRYPOINT ["/app/shelterkin"]

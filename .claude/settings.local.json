@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go mod init github.com/shelterkin/shelterkin)",
+      "Bash(cmd.exe /c \"where go\")",
+      "Bash(cmd.exe /c \"go version\")",
+      "Bash(cmd.exe /c \"choco install golang -y\")",
+      "Bash(powershell.exe -Command \"choco install golang -y\")",
+      "Bash(export PATH=\"$PATH:/c/Program Files/Go/bin:/c/Users/MCNABBMR/go/bin\")",
+      "Bash(go version)",
+      "Bash(go get modernc.org/sqlite)",
+      "Bash(go get github.com/pressly/goose/v3)",
+      "Bash(go get github.com/a-h/templ)",
+      "Bash(go get github.com/gorilla/sessions)",
+      "Bash(go get golang.org/x/crypto)",
+      "Bash(go get github.com/oklog/ulid/v2)",
+      "Bash(go get github.com/stretchr/testify)",
+      "Bash(go vet ./internal/... ./db/...)",
+      "Bash(go test ./internal/... -count=1 -v)",
+      "Bash(go test ./internal/... -count=1)",
+      "Bash(go mod tidy)",
+      "Bash(go test ./internal/testutil/... -count=1 -v)",
+      "Bash(sqlc version)",
+      "Bash(export PATH=\"$PATH:/c/Program Files/Go/bin:/c/Users/MCNABBMR/go/bin:$HOME/go/bin\")",
+      "Bash(go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest)",
+      "Bash(sqlc generate)",
+      "Bash(go vet ./...)",
+      "Bash(go test ./... -count=1)",
+      "Bash(templ version)",
+      "Bash(CGO_ENABLED=0 go install github.com/a-h/templ/cmd/templ@latest)",
+      "Bash(templ generate)",
+      "Bash(curl -sL \"https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js\" -o static/js/htmx.min.js)",
+      "Bash(curl -sL \"https://unpkg.com/htmx-ext-sse@2.2.2/sse.js\" -o static/js/htmx-sse.js)",
+      "Bash(export PATH=\"$PATH:/c/Program Files/nodejs\")",
+      "Bash(node --version)",
+      "Bash(npm --version)",
+      "Bash(npm install)",
+      "Bash(npx tailwindcss -i input.css -o static/css/styles.css --minify)",
+      "Bash(go test ./...)"
+    ]
+  }
+}

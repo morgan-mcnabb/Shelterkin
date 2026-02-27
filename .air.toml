@@ -1,0 +1,17 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  bin = "tmp/shelterkin"
+  cmd = "templ generate && sqlc generate && go build -o tmp/shelterkin ./cmd/shelterkin"
+  delay = 1000
+  exclude_dir = ["tmp", "bin", "node_modules", "dist", "data", ".git", "static"]
+  exclude_regex = ["_templ\\.go$", "_test\\.go$"]
+  include_ext = ["go", "templ", "sql"]
+  kill_delay = 500
+
+[log]
+  time = false
+
+[misc]
+  clean_on_exit = true

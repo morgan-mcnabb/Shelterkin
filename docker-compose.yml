@@ -1,0 +1,20 @@
+services:
+  shelterkin:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - DATABASE_PATH=/app/data/shelterkin.db
+      - SESSION_SECRET=${SESSION_SECRET}
+      - ENCRYPTION_SECRET=${ENCRYPTION_SECRET}
+      - CSRF_KEY=${CSRF_KEY}
+      - DATA_DIR=/app/data
+      - LOG_LEVEL=info
+      - BASE_URL=${BASE_URL:-http://localhost:8080}
+    volumes:
+      - shelterkin-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  shelterkin-data:

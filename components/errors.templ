@@ -1,0 +1,34 @@
+package components
+
+templ FormFieldError(field string, message string) {
+	<div id={ "error-" + field } class="label">
+		<span class="label-text-alt text-error">{ message }</span>
+	</div>
+}
+
+templ AlertBanner(level string, message string) {
+	<div class={ "alert", alertClass(level) } role="alert">
+		<span>{ message }</span>
+		<button class="btn btn-sm btn-ghost" onclick="this.parentElement.remove()">✕</button>
+	</div>
+}
+
+templ AlertBannerWithRetry(message string, retryURL string) {
+	<div class="alert alert-error" role="alert">
+		<span>{ message }</span>
+		<button
+			class="btn btn-sm btn-outline"
+			hx-get={ retryURL }
+			hx-target="closest .alert"
+			hx-swap="outerHTML"
+		>
+			Retry
+		</button>
+	</div>
+}
+
+templ FormFieldErrorOOB(field string, message string) {
+	<div id={ "error-" + field } hx-swap-oob="innerHTML">
+		<span class="label-text-alt text-error">{ message }</span>
+	</div>
+}
